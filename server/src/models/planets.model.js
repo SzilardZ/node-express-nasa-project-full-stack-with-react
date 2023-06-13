@@ -38,9 +38,13 @@ export async function loadPlanetsData() {
       .on('end', () => {
         console.log(`${habitablePlanets.length} habitable planets found!`);
       });
-    if (!response.ok)
+    if (!response)
       throw new Error(`Couldn't fetch the data. Please try again later!`);
   } catch (err) {
     console.log(err.message);
   }
+}
+
+export function getAllPlanets() {
+  return habitablePlanets;
 }
