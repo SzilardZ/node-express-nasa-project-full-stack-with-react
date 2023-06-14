@@ -13,19 +13,7 @@ const launch = {
   success: true,
 };
 
-const launch2 = {
-  flightNumber: 200,
-  mission: 'Kepler Exploration XXX',
-  rocket: 'Explorer IS2',
-  launchDate: new Date('December 27 2031'),
-  target: 'Kepler-443b',
-  customer: ['ZTM', 'NASA'],
-  upcoming: true,
-  success: true,
-};
-
 launches.set(launch.flightNumber, launch);
-launches.set(launch2.flightNumber, launch2);
 
 export function addNewLaunch(launch) {
   latestFlightNumber++;
