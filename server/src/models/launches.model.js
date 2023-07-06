@@ -1,4 +1,4 @@
-// import launches from './launches.mongo'
+import { launchesDatabase } from './launches.mongo.js';
 
 const launches = new Map();
 
@@ -15,13 +15,26 @@ const launch = {
   success: true,
 };
 
-launches.set(launch.flightNumber, launch);
+saveLaunch(launch);
 
 export function existsLaunchWithId(launchId) {
   return launches.has(launchId);
 }
+
 export function getAllLaunches() {
   return Array.from(launches.values());
+}
+
+async function saveLaunch(launch) {
+  await launchesDatabase.updateOne(
+    {
+      flightNumber: launch.flightNumber,
+    },
+    launch,
+    {
+      upsert: true,
+    }
+  );
 }
 
 export function addNewLaunch(launch) {
