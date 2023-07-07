@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'csv-parse';
 
-import planets from './planets.mongo.js';
+import { planets } from './planets.mongo.js';
 
 function isHabitablePlanet(planet) {
   return (

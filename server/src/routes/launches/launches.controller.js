@@ -5,8 +5,8 @@ import {
   getAllLaunches,
 } from '../../models/launches.model.js';
 
-export function httpGetAllLaunches(req, res) {
-  return res.status(200).json(getAllLaunches());
+export async function httpGetAllLaunches(req, res) {
+  return res.status(200).json(await getAllLaunches());
 }
 
 export function httpAddNewLaunch(req, res) {
