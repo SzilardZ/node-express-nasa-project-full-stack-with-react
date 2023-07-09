@@ -16,6 +16,7 @@ function isHabitablePlanet(planet) {
 
 export async function loadPlanetsData() {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
   try {
     const response = fs
       .createReadStream(

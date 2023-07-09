@@ -1,6 +1,6 @@
 import {
   abortLaunchById,
-  addNewLaunch,
+  scheduleNewLaunch,
   existsLaunchWithId,
   getAllLaunches,
 } from '../../models/launches.model.js';
@@ -9,7 +9,7 @@ export async function httpGetAllLaunches(req, res) {
   return res.status(200).json(await getAllLaunches());
 }
 
-export function httpAddNewLaunch(req, res) {
+export async function httpAddNewLaunch(req, res) {
   const newLaunch = req.body;
 
   if (
@@ -26,7 +26,7 @@ export function httpAddNewLaunch(req, res) {
     return res.status(400).json({ error: 'Invalid launch date' });
   }
 
-  addNewLaunch(newLaunch);
+  await scheduleNewLaunch(newLaunch);
 
   return res.status(201).json(newLaunch);
 }
