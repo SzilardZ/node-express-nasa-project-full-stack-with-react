@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "watch": "nodemon src/server.js",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles",
     "test-watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "start": "node src/server.js",
     "cluster": "pm2 start src/server.js -i max"
@@ -15,7 +15,7 @@
   "license": "ISC",
   "type": "module",
   "jest": {
-    "testEnvironment:": "node"
+    "testEnvironment": "node"
   },
   "dependencies": {
     "cors": "^2.8.5",

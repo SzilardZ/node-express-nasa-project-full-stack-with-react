@@ -13,3 +13,7 @@ mongoose.connection.on('error', err => {
 export async function mongoConnect() {
   await mongoose.connect(MONGO_URL);
 }
+
+export async function mongoDisconnect() {
+  await mongoose.disconnect();
+}
