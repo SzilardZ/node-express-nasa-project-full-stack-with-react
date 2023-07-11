@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import { launches as launchesDatabase } from './launches.mongo.js';
 import { planets } from './planets.mongo.js';
 
@@ -6,17 +8,83 @@ const DEFAULT_FLIGHT_NUMBER = 100;
 const launches = new Map();
 
 const launch = {
-  flightNumber: 100,
-  mission: 'Kepler Exploration X',
-  rocket: 'Explorer IS1',
-  launchDate: new Date('December 27 2030'),
-  target: 'Kepler-442 b',
-  customers: ['ZTM', 'NASA'],
-  upcoming: true,
-  success: true,
+  flightNumber: 100, // flight_number
+  mission: 'Kepler Exploration X', // name
+  rocket: 'Explorer IS1', // rocket.name
+  launchDate: new Date('December 27 2030'), // date_local
+  target: 'Kepler-442 b', // not applicable
+  customers: ['ZTM', 'NASA'], // payload.customers for each payload
+  upcoming: true, // upcoming
+  success: true, // success
 };
 
 saveLaunch(launch);
+
+const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
+
+async function populateLaunches() {
+  const response = await axios.post(SPACEX_API_URL, {
+    query: {},
+    options: {
+      pagination: false,
+      populate: [
+        {
+          path: 'rocket',
+          select: {
+            name: 1,
+          },
+          path: 'payloads',
+          select: {
+            customers: 1,
+          },
+        },
+      ],
+    },
+  });
+
+  // the response result from axios comes in a "docs" array
+  const launchDocs = response.data.docs;
+
+  for (const launchDoc of launchDocs) {
+    const payloads = launchDoc.payloads;
+    const customers = payloads.flatMap(payload => payload.customers);
+
+    const launch = {
+      flightNumber: launchDoc.flight_number,
+      mission: launchDoc.name,
+      rocket: launchDoc.rocket.name,
+      launchDate: launchDoc.date_local,
+      // target: '',
+      customers: customers,
+      upcoming: launchDoc.upcoming,
+      success: launchDoc.success,
+    };
+
+    console.log(`${launch.flightNumber}, ${launch.mission}`);
+
+    //TODO: populate launches collection
+  }
+}
+
+export async function loadLaunchData() {
+  // check if the data is still in our database for minimizing API load
+  const firstLaunch = await findLaunch({
+    flightNumber: 1,
+    rocket: 'Falcon 1',
+    mission: 'FalconSat',
+  });
+
+  // if it's in our database, we don't send our request with axios to the SpaceX API
+  if (firstLaunch) {
+    console.log('Launch Data already loaded');
+  } else {
+    await populateLaunches();
+  }
+}
+
+async function findLaunch(filter) {
+  return await launchesDatabase.findOne(filter);
+}
 
 export async function existsLaunchWithId(launchId) {
   return await launchesDatabase.findOne({
