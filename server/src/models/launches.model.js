@@ -42,6 +42,12 @@ async function populateLaunches() {
     },
   });
 
+  // validate the response status code
+  if (response.status !== 200) {
+    console.log('Problem downloading launch data');
+    throw new Error('Launch data download failed');
+  }
+
   // the response result from axios comes in a "docs" array
   const launchDocs = response.data.docs;
 
@@ -52,22 +58,21 @@ async function populateLaunches() {
     const launch = {
       flightNumber: launchDoc.flight_number,
       mission: launchDoc.name,
-      rocket: launchDoc.rocket.name,
+      rocket: launchDoc['rocket']['name'],
       launchDate: launchDoc.date_local,
-      // target: '',
       customers: customers,
       upcoming: launchDoc.upcoming,
       success: launchDoc.success,
     };
 
-    console.log(`${launch.flightNumber}, ${launch.mission}`);
+    console.log(`${launch.flightNumber}, ${launch.rocket}, ${launch.mission}`);
 
-    //TODO: populate launches collection
+    await saveLaunch(launch);
   }
 }
 
 export async function loadLaunchData() {
-  // check if the data is still in our database for minimizing API load
+  // check if the data is already in our database for MINIMIZING API LOAD
   const firstLaunch = await findLaunch({
     flightNumber: 1,
     rocket: 'Falcon 1',
@@ -76,7 +81,8 @@ export async function loadLaunchData() {
 
   // if it's in our database, we don't send our request with axios to the SpaceX API
   if (firstLaunch) {
-    console.log('Launch Data already loaded');
+    console.log('Launch Data already loaded!');
+    // else we do
   } else {
     await populateLaunches();
   }
@@ -102,25 +108,22 @@ async function getLatestFlightNumber() {
   return latestLaunch.flightNumber;
 }
 
-export async function getAllLaunches() {
-  return await launchesDatabase.find(
-    {}, // this will return all the documents from the collection
-    {
-      _id: 0,
-      __v: 0,
-    } // this will exclude these fields from the response
-  );
+export async function getAllLaunches(skip, limit) {
+  return await launchesDatabase
+    .find(
+      // this will return all the documents from the collection
+      {},
+      // this will exclude these fields from the response
+      {
+        _id: 0,
+        __v: 0,
+      }
+    )
+    .skip(skip)
+    .limit(limit);
 }
 
 async function saveLaunch(launch) {
-  const planet = await planets.findOne({
-    keplerName: launch.target,
-  });
-
-  if (!planet) {
-    throw new Error('No matching planet was found');
-  }
-
   await launchesDatabase.findOneAndUpdate(
     {
       flightNumber: launch.flightNumber,
@@ -133,6 +136,14 @@ async function saveLaunch(launch) {
 }
 
 export async function scheduleNewLaunch(launch) {
+  const planet = await planets.findOne({
+    keplerName: launch.target,
+  });
+
+  if (!planet) {
+    throw new Error('No matching planet was found');
+  }
+
   const newFlightNumber = (await getLatestFlightNumber()) + 1;
 
   const newLaunch = Object.assign(launch, {
