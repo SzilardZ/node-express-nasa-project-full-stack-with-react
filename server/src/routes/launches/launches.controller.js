@@ -9,6 +9,10 @@ import { getPagination } from '../../services/query.js';
 
 export async function httpGetAllLaunches(req, res) {
   const { skip, limit } = getPagination(req.query);
+
+  console.log('AAAAAAA skip', skip);
+  console.log('BBBBBBB limit', limit);
+
   const launches = await getAllLaunches(skip, limit);
   return res.status(200).json(launches);
 }

@@ -5,21 +5,6 @@ import { planets } from './planets.mongo.js';
 
 const DEFAULT_FLIGHT_NUMBER = 100;
 
-const launches = new Map();
-
-const launch = {
-  flightNumber: 100, // flight_number
-  mission: 'Kepler Exploration X', // name
-  rocket: 'Explorer IS1', // rocket.name
-  launchDate: new Date('December 27 2030'), // date_local
-  target: 'Kepler-442 b', // not applicable
-  customers: ['ZTM', 'NASA'], // payload.customers for each payload
-  upcoming: true, // upcoming
-  success: true, // success
-};
-
-saveLaunch(launch);
-
 const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
 
 async function populateLaunches() {
@@ -58,7 +43,7 @@ async function populateLaunches() {
     const launch = {
       flightNumber: launchDoc.flight_number,
       mission: launchDoc.name,
-      rocket: launchDoc['rocket']['name'],
+      rocket: launchDoc.rocket.name,
       launchDate: launchDoc.date_local,
       customers: customers,
       upcoming: launchDoc.upcoming,
@@ -119,6 +104,7 @@ export async function getAllLaunches(skip, limit) {
         __v: 0,
       }
     )
+    .sort({ flightNumber: 1 })
     .skip(skip)
     .limit(limit);
 }
@@ -168,3 +154,23 @@ export async function abortLaunchById(launchId) {
   );
   return aborted.modifiedCount === 1;
 }
+
+/*
+
+DUMMY DATA for initial state when we don't have database record yet.
+
+const launches = new Map();
+
+const launch = {
+  flightNumber: 100, // flight_number
+  mission: 'Kepler Exploration X', // name
+  rocket: 'Explorer IS1', // rocket.name
+  launchDate: new Date('December 27 2030'), // date_local
+  target: 'Kepler-442 b', // not applicable
+  customers: ['ZTM', 'NASA'], // payload.customers for each payload
+  upcoming: true, // upcoming
+  success: true, // success
+};
+
+saveLaunch(launch);
+*/
