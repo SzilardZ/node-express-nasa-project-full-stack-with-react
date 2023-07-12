@@ -18,6 +18,8 @@ async function populateLaunches() {
           select: {
             name: 1,
           },
+        },
+        {
           path: 'payloads',
           select: {
             customers: 1,
@@ -50,7 +52,7 @@ async function populateLaunches() {
       success: launchDoc.success,
     };
 
-    console.log(`${launch.flightNumber}, ${launch.rocket}, ${launch.mission}`);
+    // console.log(`${launch.flightNumber}, ${launch.rocket}, ${launch.mission}`);
 
     await saveLaunch(launch);
   }
@@ -157,7 +159,7 @@ export async function abortLaunchById(launchId) {
 
 /*
 
-DUMMY DATA for initial state when we don't have database record yet.
+DUMMY DATA for initial state when we don't have any database record yet.
 
 const launches = new Map();
 

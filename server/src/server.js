@@ -1,5 +1,8 @@
 import http from 'http';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 import app from './app.js';
 import { mongoConnect } from './services/mongo.js';
 import { loadPlanetsData } from './models/planets.model.js';
